@@ -11,77 +11,78 @@ namespace Tests;
 [TestClass]
 public abstract class IntegrationTestBase
 {
-    protected static readonly MsSqlContainer _dbContainer = new
-            MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest")
+    protected static readonly MsSqlContainer _dbContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest")
         .WithPassword("StrongPassword123!")
         .Build();
 
+    private static Respawner _respawner = null!;
+    private static string _connectionString = null!;
+
     protected BlogContext _context = null!;
     protected BlogRepository _repository = null!;
-    private Respawner _respawner = null!;
 
     [AssemblyInitialize]
     public static async Task AssemblyInit(TestContext context)
     {
-// Uruchomienie kontenera raz dla wszystkich testów w projekcie
         await _dbContainer.StartAsync();
+
+        _connectionString = _dbContainer.GetConnectionString();
+
+        var options = new DbContextOptionsBuilder<BlogContext>()
+            .UseSqlServer(_connectionString)
+            .Options;
+
+        using (var dbContext = new BlogContext(options))
+        {
+            await dbContext.Database.EnsureDeletedAsync();
+            await dbContext.Database.EnsureCreatedAsync();
+        }
+
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            await connection.OpenAsync();
+
+            _respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
+            {
+                TablesToIgnore = new Table[]
+                {
+                    new Table("__EFMigrationsHistory")
+                }
+            });
+        }
     }
 
     [TestInitialize]
     public async Task Setup()
     {
-        var connectionString = _dbContainer.GetConnectionString();
-// 1. Konfiguracja EF Core
         var options = new DbContextOptionsBuilder<BlogContext>()
-            .UseSqlServer(connectionString)
+            .UseSqlServer(_connectionString)
             .Options;
-        _context = new BlogContext(options);
-        await _context.Database.EnsureCreatedAsync(); // Tworzy schemat
-        _repository = new BlogRepository(_context);
-// 2. Inicjalizacja Respawn przy użyciu AKTYWNEGO połączenia
-        using (var connection = new SqlConnection(connectionString))
-        {
-            await connection.OpenAsync();
-            _respawner = await Respawner.CreateAsync(connection, new
-                RespawnerOptions
-                {
-                    TablesToIgnore = new Table[]
-                    {
-                        new Table("__EFMigrationsHistory")
-                    }
-                });
-        }
 
-// 3. Pierwszy reset bazy
+        _context = new BlogContext(options);
+        _repository = new BlogRepository(_context);
+
         await ResetDatabaseAsync();
     }
 
-// Metoda resetująca - czyści tabele bazy danych
     protected async Task ResetDatabaseAsync()
     {
-        if (_respawner != null)
+        using (var connection = new SqlConnection(_connectionString))
         {
-            var connectionString = _dbContainer.GetConnectionString();
-            using (var connection = new SqlConnection(connectionString))
-            {
-                await connection.OpenAsync();
-// Resetowanie danych przy użyciu obiektu połączenia
-                await _respawner.ResetAsync(connection);
-            }
+            await connection.OpenAsync();
+            await _respawner.ResetAsync(connection);
         }
     }
 
     [TestCleanup]
     public void Cleanup()
     {
-// Zwalnianie zasobów po każdym teście
         _context.Dispose();
     }
 
     [AssemblyCleanup]
     public static async Task AssemblyCleanup()
     {
-// Zatrzymanie kontenera po zakończeniu wszystkich testów
         await _dbContainer.StopAsync();
     }
 }
