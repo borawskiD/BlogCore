@@ -23,7 +23,7 @@ public class PostRepositoryTests : IntegrationTestBase
         var after = _repository.GetAllPosts().Count();
         Assert.AreEqual(before + 1, after);
     }
-    
+
     [TestMethod]
     [ExpectedException(typeof(DbUpdateException))]
     public void AddPost_InvalidPost_ThrowDbUpdateException()
@@ -36,7 +36,7 @@ public class PostRepositoryTests : IntegrationTestBase
         };
         //when
         _repository.AddPost(post);
-        
+
     }
 
     [TestMethod]

@@ -6,7 +6,7 @@ namespace Tests;
 [TestClass]
 public class CommentRepositoryTests : IntegrationTestBase
 {
-    
+
     [TestMethod]
     public void AddPostWithComments_ValidPostWithComments_GettingAllComments()
     {
@@ -24,7 +24,7 @@ public class CommentRepositoryTests : IntegrationTestBase
         Assert.AreEqual(3, commentsFromDatabase.Count);
         Assert.IsTrue(commentsFromDatabase.All(c => c.PostId == post.Id));
     }
-    
+
     [TestMethod]
     public void AddComment_ValidData_IncreasesCountForPost()
     {
@@ -39,7 +39,7 @@ public class CommentRepositoryTests : IntegrationTestBase
         Assert.AreEqual(1, commentsFromDatabase.Count);
         Assert.IsTrue(commentsFromDatabase.All(c => c.PostId == post.Id));
     }
-    
+
     [TestMethod]
     public void GetCommentsByPostId_NonExistentPost_ReturnsEmpty()
     {
@@ -49,7 +49,7 @@ public class CommentRepositoryTests : IntegrationTestBase
         Assert.IsNotNull(comments);
         Assert.IsTrue(comments.IsNullOrEmpty());
     }
-    
+
     [ExpectedException(typeof(DbUpdateException))]
     [TestMethod]
     public void AddComment_OrphanComment_ThrowsException()
@@ -60,7 +60,7 @@ public class CommentRepositoryTests : IntegrationTestBase
         // when
         _repository.AddComment(comment);
     }
-    
+
     [TestMethod]
     public void MultipleComments_DifferentPosts_ReturnsOnlyCorrectOnes()
     {
@@ -84,5 +84,5 @@ public class CommentRepositoryTests : IntegrationTestBase
         Assert.AreEqual(5, result.Count);
         Assert.IsTrue(result.All(c => c.PostId == posts[0].Id));
     }
-    
+
 }
