@@ -34,7 +34,7 @@ public class BlogRepository
             .Where(c => c.PostId == postId)
             .ToList();
     }
-    
+
     public void DeletePost(int postId)
     {
         var post = _context.Posts.Find(postId);
@@ -45,6 +45,6 @@ public class BlogRepository
             _context.SaveChanges();
         }
     }
-    
-    
+
+
 }
