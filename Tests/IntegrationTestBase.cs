@@ -26,7 +26,12 @@ public abstract class IntegrationTestBase
     {
         await _dbContainer.StartAsync();
 
-        _connectionString = _dbContainer.GetConnectionString();
+        var builder = new SqlConnectionStringBuilder(_dbContainer.GetConnectionString())
+        {
+            InitialCatalog = "BlogCoreTests"
+        };
+
+        _connectionString = builder.ConnectionString;
 
         var options = new DbContextOptionsBuilder<BlogContext>()
             .UseSqlServer(_connectionString)
