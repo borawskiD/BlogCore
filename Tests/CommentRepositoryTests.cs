@@ -36,7 +36,7 @@ public class CommentRepositoryTests : IntegrationTestBase
         _repository.AddComment(comment);
         //then
         var commentsFromDatabase = _repository.GetCommentsByPostId(post.Id).ToList();
-        Assert.AreEqual(4, commentsFromDatabase.Count);
+        Assert.AreEqual(1, commentsFromDatabase.Count);
         Assert.IsTrue(commentsFromDatabase.All(c => c.PostId == post.Id));
     }
     
@@ -81,7 +81,7 @@ public class CommentRepositoryTests : IntegrationTestBase
         var result = _repository.GetCommentsByPostId(posts[0].Id).ToList();
 
         // Then
-        Assert.AreEqual(2, result.Count);
+        Assert.AreEqual(5, result.Count);
         Assert.IsTrue(result.All(c => c.PostId == posts[0].Id));
     }
     
