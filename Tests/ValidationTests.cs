@@ -19,7 +19,7 @@ public class ValidationTests : IntegrationTestBase
         //when
         _repository.AddPost(postWithoutAuthor);
     }
-    
+
     [TestMethod]
     [ExpectedException(typeof(DbUpdateException))]
     public void AddComment_NullContent_ThrowsDbUpdateException()
@@ -39,7 +39,7 @@ public class ValidationTests : IntegrationTestBase
         //when
         _repository.AddComment(commentWithoutContent);
     }
-    
-    
-    
+
+
+
 }

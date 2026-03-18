@@ -8,10 +8,10 @@ public class Comment
 {
     [Key]
     public int Id { get; set; }
-    
+
     [Required]
     public string Content { get; set; } = string.Empty;
-    
+
     [ForeignKey("Post")]
     public int PostId { get; set; }
 
