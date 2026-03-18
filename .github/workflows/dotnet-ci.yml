@@ -39,7 +39,7 @@ jobs:
     # 6. Uruchomienie testów funkcjonalnych
     # Testcontainers automatycznie uruchomi SQL Server w Dockerze na Runnerze
       - name: Run Tests with Coverage
-        run: dotnet test --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+        run: dotnet test --configuration Release --logger "trx;LogFileName=test_results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
